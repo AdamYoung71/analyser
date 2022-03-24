@@ -89,4 +89,5 @@ Input relations only for IL2:
   * `call(M, L)` and a dereference of `V` is used in the arguments of the call;
   * `return(L)` and a dereference of `V` is used in the returned expression.
 * `rhs_deref(V, L)`: `assignment(L)` and a dereference of `V` is the RHS of the assingment.
+* `rhs_address(V, L)`: `assignment(L)` and an address of `V` is the RHS of the assingment.
 * `call_arg_deref(M, V, L)`: the function `M` is called at the statement `L` with a dereference of `V` being the sole argument.

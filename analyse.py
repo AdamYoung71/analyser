@@ -16,6 +16,16 @@ class UnsupportedLanguageConstruct(Exception):
 
 def is_deref(n):
     if n.__class__.__name__ == "UnaryOp" and \
+       n.op == "*" and \
+       n.expr.__class__.__name__ == "ID":
+        return n.expr.name
+    else:
+        return None
+
+
+def is_address(n):
+    if n.__class__.__name__ == "UnaryOp" and \
+       n.op == "&" and \
        n.expr.__class__.__name__ == "ID":
         return n.expr.name
     else:
@@ -90,6 +100,7 @@ class StatementVisitor:
         self.edb["rhs_var"] = []
         self.edb["rhs_const"] = []
         self.edb["rhs_deref"] = []
+        self.edb["rhs_address"] = []
         self.edb["call_arg_var"] = []
         self.edb["call_arg_const"] = []
         self.edb["call_arg_deref"] = []
@@ -223,6 +234,8 @@ class StatementVisitor:
         self._add_used(rvalue_vars, rvalue_deref_vars, label)
         if is_deref(n.rvalue):
             self.edb["rhs_deref"].append((is_deref(n.rvalue), label))
+        if is_address(n.rvalue):
+            self.edb["rhs_address"].append((is_address(n.rvalue), label))
         if is_var(n.rvalue):
             self.edb["rhs_var"].append((is_var(n.rvalue), label))
         if is_const(n.rvalue):
