@@ -69,19 +69,24 @@ Input relations for IL1 and IL2:
 * `return(L)`: `L` is a label of a return statement.
 * `function(M)`: `M` is a function.
 * `call(M, L)`: the function `M` is called at the statement `L`.
+* `call_arg_var(M, V, L)`: the function `M` is called at the statement `L` with the variable `V` being the sole argument.
+* `call_arg_const(M, C, L)`: the function `M` is called at the statement `L` with a constant `C` being the sole argument.
 * `used(V, L)`: one of the following is true:
   * `assignment(L)` and the variable `V` is used in the RHS of the assingment;
   * `condition(L)` and the variable `V` is used in the condition;
   * `call(M, L)` and the variable `V` is used in the arguments of the call;
   * `return(L)` and the variable `V` is used in the returned expression.
 * `defined(V, L)`: `assignment(L)` and `V` is the LHS of the assignment.
+* `rhs_var(V, L)`: `assignment(L)` and the variable `V` is the RHS of the assingment.
+* `rhs_const(C, L)`: `assignment(L)` and the constant `C` is the RHS of the assingment.
 
 Input relations only for IL2:
 
-* `deref_defined(V, L)`: `assignment(L)` and a dereference of `V` is the LHS of the assignment.
-* `deref_used(V, L)`: one of the following is true:
+* `defined_deref(V, L)`: `assignment(L)` and a dereference of `V` is the LHS of the assignment.
+* `used_deref(V, L)`: one of the following is true:
   * `assignment(L)` and a dereference of `V` is used in the RHS of the assingment;
   * `condition(L)` and a dereference of `V` is used in the condition;
   * `call(M, L)` and a dereference of `V` is used in the arguments of the call;
   * `return(L)` and a dereference of `V` is used in the returned expression.
-* `deref_rhs(V, L)`: `assignment(L)` and a dereference of `V` is the RHS of the assingment.
+* `rhs_deref(V, L)`: `assignment(L)` and a dereference of `V` is the RHS of the assingment.
+* `call_arg_deref(M, V, L)`: the function `M` is called at the statement `L` with a dereference of `V` being the sole argument.

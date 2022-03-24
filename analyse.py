@@ -22,6 +22,20 @@ def is_deref(n):
         return None
 
 
+def is_var(n):
+    if n.__class__.__name__ == "ID":
+        return n.name
+    else:
+        return None
+
+
+def is_const(n):
+    if n.__class__.__name__ == "Constant":
+        return str(n.value)
+    else:
+        return None
+
+
 class ExpressionVisitor:
 
     def __init__(self):
@@ -36,7 +50,6 @@ class ExpressionVisitor:
         raise UnsupportedLanguageConstruct(node.__class__.__name__)
 
     def visit_Constant(self, n):
-        # ignore n.value
         pass
 
     def visit_ID(self, n):
@@ -72,9 +85,14 @@ class StatementVisitor:
         self.edb["function"] = []
         self.edb["used"] = []
         self.edb["defined"] = []
-        self.edb["deref_defined"] = []
-        self.edb["deref_used"] = []
-        self.edb["deref_rhs"] = []
+        self.edb["defined_deref"] = []
+        self.edb["used_deref"] = []
+        self.edb["rhs_var"] = []
+        self.edb["rhs_const"] = []
+        self.edb["rhs_deref"] = []
+        self.edb["call_arg_var"] = []
+        self.edb["call_arg_const"] = []
+        self.edb["call_arg_deref"] = []
 
     def _new_label(self):
         id = "l" + str(self._availabe_label_index)
@@ -109,7 +127,7 @@ class StatementVisitor:
         for v in set([*vars, *deref_vars]):
             self.edb["used"].append((v, label))
         for v in set(deref_vars):
-            self.edb["deref_used"].append((v, label))
+            self.edb["used_deref"].append((v, label))
 
     def visit(self, node):
         method = 'visit_' + node.__class__.__name__
@@ -166,12 +184,20 @@ class StatementVisitor:
 
     def visit_FuncCall(self, n):
         label = self._add_elementary_block(n)
-        for arg in n.args:
+        args = list(n.args)
+        for arg in args:
             arg_vars, arg_deref_vars = self._process_expr(arg)
             self._add_used(arg_vars, arg_deref_vars, label)
         if n.name.name not in self.edb["function"]:
             self.edb["function"].append(n.name.name)
         self.edb["call"].append((n.name.name, label))
+        if len(args) == 1:
+            if is_deref(args[0]):
+                self.edb["call_arg_deref"].append((n.name.name, is_deref(args[0]), label))
+            if is_var(args[0]):
+                self.edb["call_arg_var"].append((n.name.name, is_var(args[0]), label))
+            if is_const(args[0]):
+                self.edb["call_arg_const"].append((n.name.name, is_const(args[0]), label))
         return (label, [label])
 
     def visit_While(self, n):
@@ -196,12 +222,16 @@ class StatementVisitor:
         rvalue_vars, rvalue_deref_vars = self._process_expr(n.rvalue)
         self._add_used(rvalue_vars, rvalue_deref_vars, label)
         if is_deref(n.rvalue):
-            self.edb["deref_rhs"].append((is_deref(n.rvalue), label))
+            self.edb["rhs_deref"].append((is_deref(n.rvalue), label))
+        if is_var(n.rvalue):
+            self.edb["rhs_var"].append((is_var(n.rvalue), label))
+        if is_const(n.rvalue):
+            self.edb["rhs_const"].append((is_const(n.rvalue), label))
         lvalue_vars, lvalue_deref_vars = self._process_expr(n.lvalue)
         if len(lvalue_vars) == 1 and len(lvalue_deref_vars) == 0:
             self.edb["defined"].append((list(lvalue_vars)[0], label))
         elif len(lvalue_vars) == 0 and len(lvalue_deref_vars) == 1:
-            self.edb["deref_defined"].append((list(lvalue_deref_vars)[0], label))
+            self.edb["defined_deref"].append((list(lvalue_deref_vars)[0], label))
         else:
             raise UnsupportedLanguageConstruct(n)
         self.edb["assignment"].append(label)
