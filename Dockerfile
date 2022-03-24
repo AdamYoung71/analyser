@@ -21,7 +21,9 @@ RUN apt-get update && \
         zlib1g-dev \
         wget \
         unzip \
-        lsb-release
+        lsb-release \
+        python3-pip \
+        graphviz
 
 RUN wget https://github.com/souffle-lang/souffle/archive/refs/tags/2.1.zip \
     && unzip 2.1.zip \
@@ -33,10 +35,12 @@ RUN mkdir -p /comp0174
 
 COPY requirements.txt /comp0174
 
-RUN python -m pip install -r /comp0174/requirements.txt
+RUN python3 -m pip install -r /comp0174/requirements.txt
 
 COPY analyse.py /comp0174/analyse.py
 
 COPY analyses /comp0174/analyses
 
 COPY examples /comp0174/examples
+
+WORKDIR /comp0174/
