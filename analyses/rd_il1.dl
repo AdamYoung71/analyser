@@ -27,7 +27,6 @@
  
 
 .decl kill(L:symbol, V:symbol, D:symbol)
-.output kill
 
 kill(L, V, D) :-
     defined(V, L),
@@ -50,5 +49,6 @@ rd_exit(L, V, D) :- rd_entry(L, V, D), !kill(L, V, D).
 rd_exit(L, V, D) :- gen(L, V, D).
  
 .decl result(L:symbol, V:symbol, D:symbol)
+.output result
 
 result(L, V, D) :- rd_entry(L, V, D).

@@ -1,3 +1,4 @@
+import os
 from tempfile import TemporaryDirectory
 from pathlib import Path
 import csv
@@ -262,6 +263,11 @@ def check_relations(relations, datalog_script):
             return load_relations(output_directory)
 
 
+def pprint(name, args):
+    args_comma_sep = ', '.join(args)
+    return f"{name}({args_comma_sep})"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='COMP0174 Analyser.')
     parser.add_argument('file', metavar='FILE', help='a file to analyse')
@@ -274,5 +280,12 @@ if __name__ == "__main__":
     if args.output_edb:
         write_relations(args.output_edb, edb)
         cfg.render(directory=args.output_edb)
+    elif args.analysis:
+        script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+        datalog_script = script_dir / 'analyses' / (args.analysis + '.dl')
+        output = check_relations(edb, datalog_script)
+        for relation, tuples in output.items():
+            for t in tuples:
+                print(pprint(relation, t))
         
     
