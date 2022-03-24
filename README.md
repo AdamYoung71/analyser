@@ -59,7 +59,7 @@ Analyses are defined as Datalog programs that read input relations, and write ou
 
 Input relations for IL1 and IL2:
 
-* `label(L)`: `L` is a label of an elementary block. Labels are named as `l1`, `l23`, etc where 1 and 23 are the lines numbers.
+* `label(L)`: `L` is a label of an elementary block. Labels are named as `l1`, `l23`, etc.
 * `flow(L1,L2)`: there is an arc between `L1` and `L2` in the control flow graph.
 * `init(L)`: `L` is the initial label.
 * `final(L)`: `L` is the final label.
