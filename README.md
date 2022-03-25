@@ -14,11 +14,11 @@ The image has to be rebuild each time a file in the `analyses` or `examples` dir
 
 ## Usage
 
-To run an analysis `rd_il1` (defined in `analyses/rd_il1.dl`) on a program `examples/rd.il1.c`, please execute the following command:
+To run the analysis `rd_il1`, reaching definitions for IL1 defined in `analyses/rd_il1.dl`, on the program `examples/rd.il1.c`, please execute the following command:
 
     docker run -ti --rm comp0174-analyser python3 analyse.py --analysis rd_il1 examples/rd.il1.c
     
-The same analysis can be executed in three steps: (1) generating a Datalog EDB, (2) executing Souffle, and (3) printing the result (using a volume `comp0174-vol` for persistent storage):
+The same analysis can be executed in three steps: (1) generating a Datalog EDB, (2) executing Souffle, and (3) printing the result (using the volume `comp0174-vol` for persistent storage):
 
     docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
         python3 analyse.py --output-edb results/edb1 examples/rd.il1.c
@@ -28,6 +28,17 @@ The same analysis can be executed in three steps: (1) generating a Datalog EDB, 
 
     docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
         cat results/output1/result.csv
+        
+## CFG Visualistion
+
+COMP0174 automatically assigns labels to elementary blocks of your program. To find how these labels are assigned, please view a visualisation of the control flow graph in the file `cfg.gv.pdf`:
+
+    docker run -ti --rm -v $PWD/results:/comp0174/results comp0174-analyser \
+        python3 analyse.py --output-edb results/edb1 examples/rd.il1.c
+        
+Then, open the file `results/edb1/cfg.gv.pdf`. Here is an example for the program `examples/rd.il1.c`:
+
+![Example cfg](examples/rd.il1.png)
 
 ## Input Language
 
