@@ -32,7 +32,7 @@ The same analysis can be executed in three steps: (1) generating a Datalog EDB, 
     docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
         cat results/output1/result.csv
         
-## CFG Visualistion
+## CFG Visualisation
 
 COMP0174 automatically assigns labels to elementary blocks of your program. To find how these labels are assigned, please view a visualisation of the control flow graph in the file `cfg.gv.pdf`:
 
