@@ -34,7 +34,7 @@ The same analysis can be executed in three steps: (1) generating a Datalog EDB, 
         
 ## CFG Visualisation
 
-COMP0174 automatically assigns labels to elementary blocks of your program. To find how these labels are assigned, please view a visualisation of the control flow graph in the file `cfg.gv.pdf`:
+COMP0174 analyser automatically assigns labels to elementary blocks of your program. To find how these labels are assigned, please view a visualisation of the control flow graph in the file `cfg.gv.pdf`:
 
     docker run -ti --rm -v $PWD/results:/comp0174/results comp0174-analyser \
         python3 analyse.py --output-edb results/edb1 examples/rd.il1.c
