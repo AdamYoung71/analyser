@@ -181,15 +181,22 @@ class StatementVisitor:
         if_finals = []
         cond_vars, cond_deref_vars = self._process_expr(n.cond)
         self._add_used(cond_vars, cond_deref_vars, cond_label)
+        if n.iftrue is None and n.iffalse is None:
+            raise UnsupportedLanguageConstruct("if without branches")
+
         if n.iftrue is not None:
             iftrue_init, iftrue_finals = self.visit(n.iftrue)
             self._add_arc(cond_label, iftrue_init, 'true')
             if_finals.extend(iftrue_finals)
+        else:
+            if_finals.append(cond_label)
 
         if n.iffalse is not None:
             iffalse_init, iffalse_finals = self.visit(n.iffalse)
             self._add_arc(cond_label, iffalse_init, 'false')
             if_finals.extend(iffalse_finals)
+        else:
+            if_finals.append(cond_label)
 
         return (cond_label, if_finals)
 
