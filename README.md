@@ -60,7 +60,7 @@ The input language is a subset of C with the following restrictions:
 * Functions are not associated with any implementations and considered as black boxes.
 * Pointer arithmetics is not allowed.
 * Only integer types are allowed.
-* Local variables do not need to be declared.
+* Local variables do not need to (and cannot) be declared. As a result, all variables have the same scope.
 
 We consider two variants of the input language:
 
