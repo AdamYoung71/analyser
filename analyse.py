@@ -202,20 +202,21 @@ class StatementVisitor:
 
     def visit_FuncCall(self, n):
         label = self._add_elementary_block(n)
-        args = list(n.args)
-        for arg in args:
-            arg_vars, arg_deref_vars = self._process_expr(arg)
-            self._add_used(arg_vars, arg_deref_vars, label)
         if n.name.name not in self.edb["function"]:
             self.edb["function"].append(n.name.name)
         self.edb["call"].append((n.name.name, label))
-        if len(args) == 1:
-            if is_deref(args[0]):
-                self.edb["call_arg_deref"].append((n.name.name, is_deref(args[0]), label))
-            if is_var(args[0]):
-                self.edb["call_arg_var"].append((n.name.name, is_var(args[0]), label))
-            if is_const(args[0]):
-                self.edb["call_arg_const"].append((n.name.name, is_const(args[0]), label))
+        if n.args:
+            args = list(n.args)
+            for arg in args:
+                arg_vars, arg_deref_vars = self._process_expr(arg)
+                self._add_used(arg_vars, arg_deref_vars, label)
+            if len(args) == 1:
+                if is_deref(args[0]):
+                    self.edb["call_arg_deref"].append((n.name.name, is_deref(args[0]), label))
+                if is_var(args[0]):
+                    self.edb["call_arg_var"].append((n.name.name, is_var(args[0]), label))
+                if is_const(args[0]):
+                    self.edb["call_arg_const"].append((n.name.name, is_const(args[0]), label))
         return (label, [label])
 
     def visit_While(self, n):
