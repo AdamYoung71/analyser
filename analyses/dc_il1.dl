@@ -1,0 +1,63 @@
+/*
+Dead code
+The goal of this analysis (called dc_il1 and dc_il2 for IL1 and IL2 respectively) 
+is to detect statements that are unreachable. The output of this analysis should 
+be a relation result(L) that states that the statement L is unreachable.
+*/
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis dc_il1 examples/dc.il1.c
+*/
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+
+.decl used(V:symbol, L:symbol)
+.input used
+
+.decl reach(L1:symbol, L2:symbol)
+
+reach(L, L) :- label(L).
+
+reach(L1, L2) :-
+    flow(L1, L3),
+    reach(L3, L2).
+
+.decl dead_code(L:symbol)
+
+
+.decl live_var_in(V:symbol, L:symbol)
+.output live_var_in()
+.decl live_var_out(V:symbol, L:symbol)
+.output live_var_out()
+
+live_var_in(V, L) :- used(V, L).
+live_var_in(V, L) :-
+    !defined(V, L), 
+    live_var_out(V, L).
+
+live_var_out(V, L) :-
+    flow(L, L1),
+    live_var_in(V, L1).

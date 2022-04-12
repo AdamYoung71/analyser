@@ -1,0 +1,18 @@
+digraph control_flow_graph {
+	node [shape=box]
+	l1 [label="z = x * 3" xlabel=l1]
+	l2 [label="x = 3" xlabel=l2]
+	l1 -> l2
+	l3 [label="x > 1" xlabel=l3]
+	l4 [label="x = 1 + y" xlabel=l4]
+	l3 -> l4 [label=true]
+	l2 -> l3
+	l5 [label="x = y" xlabel=l5]
+	l4 -> l5
+	l3 -> l5
+	l6 [label="a == 1" xlabel=l6]
+	l7 [label="b = 1" xlabel=l7]
+	l6 -> l7 [label=true]
+	l7 -> l6
+	l5 -> l6
+}

@@ -1,0 +1,11 @@
+/*
+Non-matching open/close
+A call to the function open(x) with one argument does not
+have a matching call of the function close(...) with one 
+argument if along at least one path to the final statement 
+close(...) is not called with the same value as the argument. 
+The goal of this analysis (called nmoc_il1 and nmoc_il2 for IL1 and IL2 respectively) 
+is to detect calls of calls that do not have matching calls of close(...). 
+The output of this analysis should be a relation result(L) that states 
+the statement L has a call of open(...) without a matching call of close(...).
+*/

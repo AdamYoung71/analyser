@@ -1,0 +1,63 @@
+/*
+Uninitialised variables
+The goal of this analysis (called uv_il1 and uv_il2 for IL1 and IL2 respectively) 
+is to detect variables that are used but not defined. The output of this analysis 
+should be a relation result(V, L) that states that the variable V may be used 
+uninitialised in the statement L. 
+*/
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examples/uv.il1.c
+*/
+// !defined(V, L)
+// rhs_var(V, L)
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+
+.decl used(V:symbol, L:symbol)
+.input used
+
+.decl reach(L1:symbol, L2:symbol)
+
+reach(L, L) :- label(L).
+
+reach(L1, L2) :-
+    flow(L1, L3),
+    reach(L3, L2).
+
+.decl uninitialised_variables(V:symbol, L:symbol)
+.output used
+
+uninitialised_variables(V, L) :-
+    label(L), 
+    label(L1),
+    flow(L1, L),
+    !defined(V, L1),
+    used(V, L).
+
+uninitialised_variables(V, L0) :-
+    init(L0),
+    used(V, L0).

@@ -23,7 +23,8 @@ RUN apt-get update && \
         unzip \
         lsb-release \
         python3-pip \
-        graphviz
+        graphviz \
+        vim
 
 RUN wget https://github.com/souffle-lang/souffle/archive/refs/tags/2.1.zip \
     && unzip 2.1.zip \

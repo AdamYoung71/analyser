@@ -1,0 +1,37 @@
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl call(M:symbol, L:symbol)
+.input call
+
+.decl unsafe_reach(L1:symbol, L2:symbol)
+
+unsafe_reach(L, L) :-
+    label(L),
+    !call("protect", L).
+
+unsafe_reach(L1, L2) :-
+    !call("protect", L1),
+    flow(L1, L3),
+    unsafe_reach(L3, L2).
+
+.decl unsafe_call(L:symbol)
+
+unsafe_call(L) :-
+    init(L0),
+    unsafe_reach(L0, L),
+    call("untrust", L).
+
+.decl safe_call(L:symbol)
+.output safe_call
+
+safe_call(L) :-
+    label(L),
+    call("untrust", L),
+    !unsafe_call(L).
