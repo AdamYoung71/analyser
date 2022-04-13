@@ -61,3 +61,11 @@ live_var_in(V, L) :-
 live_var_out(V, L) :-
     flow(L, L1),
     live_var_in(V, L1).
+
+dead_code(L) :-
+    label(L1),
+    label(L2),
+    flow(L1, L),
+    flow(L, L2),
+    live_var_out(V, L1),
+    live_var_in(V, L2).

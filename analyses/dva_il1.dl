@@ -41,7 +41,11 @@ live_vars_in(V, L) :- !defined(V, L), live_vars_out(V, L).
 .decl live_vars_out(V:symbol, L:symbol)
 live_vars_out(V, L) :- flow(L, L1), live_vars_in(V, L1).
 
-.decl dead_live_arguments(V:symbol, L:symbol)
-.output dead_live_arguments
+.decl dead_var_assign(V:symbol, L:symbol)
+.output dead_var_assign
+
+dead_var_assign(V, L) :-
+    assignment(L),
+    !live_vars_in(V, L).
 
 
