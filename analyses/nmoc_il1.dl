@@ -9,3 +9,62 @@ is to detect calls of calls that do not have matching calls of close(...).
 The output of this analysis should be a relation result(L) that states 
 the statement L has a call of open(...) without a matching call of close(...).
 */
+
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+
+.decl used(V:symbol, L:symbol)
+.input used
+
+.decl rhs_var(V:symbol, L:symbol)
+.input rhs_var
+
+.decl reach(L1:symbol, L2:symbol)
+
+reach(L, L) :- label(L).
+
+reach(L1, L2) :-
+    flow(L1, L3),
+    reach(L3, L2).
+
+.decl call(M:symbol, L:symbol)
+.input call
+
+.decl call_arg_var(M:symbol, V:symbol, L:symbol)
+.input call_arg_var
+
+.decl call_arg_const(M:symbol, C:symbol, L:symbol)
+
+.decl nmoc(L:symbol)
+
+nmoc(L) :-
+    variable(V),
+    call_arg_var("open", V, L),
+    label(L1),
+    reach(L, L1),
+    call("close", V, L).
+.output nmoc

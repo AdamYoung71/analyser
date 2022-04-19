@@ -34,6 +34,16 @@ should be a relation result(V, L) that states that the variable V is dead in the
 .decl used(V:symbol, L:symbol)
 .input used
 
+.decl kill(L:symbol, V:symbol, D:symbol)
+
+kill(L, V, D) :-
+    defined(V, L),
+    defined(V, D),
+    L != D.
+ 
+kill(L, V, "?") :-
+    defined(V, L).
+
 .decl live_vars_in(V:symbol, L:symbol)
 live_vars_in(V, L) :- used(V, L).
 live_vars_in(V, L) :- !defined(V, L), live_vars_out(V, L).
@@ -41,11 +51,13 @@ live_vars_in(V, L) :- !defined(V, L), live_vars_out(V, L).
 .decl live_vars_out(V:symbol, L:symbol)
 live_vars_out(V, L) :- flow(L, L1), live_vars_in(V, L1).
 
+/* At lable L, if variable V is dead(!live), and L is the definitio of V*/
+
 .decl dead_var_assign(V:symbol, L:symbol)
 .output dead_var_assign
 
 dead_var_assign(V, L) :-
-    assignment(L),
+    defined(V, L),
     !live_vars_in(V, L).
 
 

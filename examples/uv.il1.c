@@ -1,10 +1,12 @@
 int main() {
     a1 = x;
-    x = 3; 
-    if(x<1) { 
+    x = 1 + b1; 
+    b1 = b1 + 1;
+    b2 = b1;
+    if(z<1) { 
         y = 1+x; 
     }
-    x = y; 
+    y = x; 
     while(x<1) {
         a2 = 0;
     }

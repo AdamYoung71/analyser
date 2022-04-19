@@ -1,10 +1,14 @@
 int main {
     a = 1;
     b = 2;
-    c = 3;
-    if(a < 1) {
+    c = 1;
+    if(a < b) {
         b = b + 1;
+        call(a);
+        c = 2;
+    } else {
+        b = b + 2;
+        call(c);
     }
-    a = 2;
-    c = 5;
+    call(b);
 }

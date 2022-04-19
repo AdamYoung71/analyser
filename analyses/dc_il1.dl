@@ -45,27 +45,40 @@ reach(L1, L2) :-
     flow(L1, L3),
     reach(L3, L2).
 
+.decl kill(L:symbol, V:symbol, D:symbol)
+
+kill(L, V, D) :-
+    defined(V, L),
+    defined(V, D),
+    L != D.
+ 
+kill(L, V, "?") :-
+    defined(V, L).
+
+.decl gen(L:symbol, V:symbol, D:symbol)
+
+gen(L, V, L) :- defined(V, L).
+
+.decl live_vars_in(V:symbol, L:symbol)
+live_vars_in(V, L) :- used(V, L).
+live_vars_in(V, L) :- !defined(V, L), live_vars_out(V, L).
+
+.decl live_vars_out(V:symbol, L:symbol)
+live_vars_out(V, L) :- flow(L, L1), live_vars_in(V, L1).
+
+
 .decl dead_code(L:symbol)
 
-
-.decl live_var_in(V:symbol, L:symbol)
-.output live_var_in()
-.decl live_var_out(V:symbol, L:symbol)
-.output live_var_out()
-
-live_var_in(V, L) :- used(V, L).
-live_var_in(V, L) :-
-    !defined(V, L), 
-    live_var_out(V, L).
-
-live_var_out(V, L) :-
-    flow(L, L1),
-    live_var_in(V, L1).
-
 dead_code(L) :-
-    label(L1),
-    label(L2),
-    flow(L1, L),
-    flow(L, L2),
-    live_var_out(V, L1),
-    live_var_in(V, L2).
+    init(L0),
+    label(L),
+    back_reach(L, L0).
+/* if a statement L is not init, and it cannot backwards reach init L0, L is unreachable*/
+
+.decl back_reach(L1:symbol, L2:symbol)
+
+back_reach(L2, L1) :- reach(L1, L2).
+    
+
+.output dead_code
+.output back_reach
