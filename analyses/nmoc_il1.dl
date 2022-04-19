@@ -10,6 +10,10 @@ The output of this analysis should be a relation result(L) that states
 the statement L has a call of open(...) without a matching call of close(...).
 */
 
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis nmoc_il1 examples/matched_call_var.il1.c
+*/
+
 .decl label(L:symbol)
 .input label
 
@@ -43,6 +47,9 @@ the statement L has a call of open(...) without a matching call of close(...).
 .decl rhs_var(V:symbol, L:symbol)
 .input rhs_var
 
+.decl function(M:symbol)
+.input function
+
 .decl reach(L1:symbol, L2:symbol)
 
 reach(L, L) :- label(L).
@@ -59,12 +66,32 @@ reach(L1, L2) :-
 
 .decl call_arg_const(M:symbol, C:symbol, L:symbol)
 
-.decl nmoc(L:symbol)
-
-nmoc(L) :-
-    variable(V),
-    call_arg_var("open", V, L),
+.decl matched_call_var(L:symbol)
+matched_call_var(L) :-
+    function(M1),
+    M1 = "open",
+    function(M2),
+    M2 = "close",
+    call_arg_var(M1, V, L),
     label(L1),
     reach(L, L1),
-    call("close", V, L).
-.output nmoc
+    call_arg_var(M2, V, L1).
+
+.decl matched_call_const(L:symbol)
+matched_call_const(L) :-
+    function(M1),
+    M1 = "open",
+    function(M2),
+    M2 = "close",
+    call_arg_const(M1, V, L),
+    label(L1),
+    reach(L, L1),
+    call_arg_const(M2, V, L1).
+
+.decl nmoc(L:symbol)
+nmoc(L) :-
+    label(L),
+    call_arg_const(M, V, L),
+    !matched_call_const(L).
+
+.output matched_call_var
