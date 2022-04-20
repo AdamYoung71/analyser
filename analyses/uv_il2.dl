@@ -9,6 +9,7 @@ uninitialised in the statement L.
 docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examples/uv.il1.c
 */
 
+
 .decl label(L:symbol)
 .input label
 
@@ -39,7 +40,8 @@ docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examp
 .decl used(V:symbol, L:symbol)
 .input used
 
-// added for pointer implementation
+.decl rhs_var(V:symbol, L:symbol)
+.input rhs_var
 
 .decl defined_deref(V: symbol, L: symbol)
 .input defined_deref
@@ -47,6 +49,36 @@ docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examp
 .decl used_deref(V:symbol, L:symbol)
 .input used_deref
 
+.decl rhs_deref(V:symbol, L:symbol)
+.input rhs_deref
+
+.decl rhs_address(V:symbol, L:symbol)
+.input rhs_address
+
+.decl call_arg_deref(M, V, L)
+.input call_arg_deref
+
+.decl kill(L:symbol, V:symbol, D:symbol)
+
+kill(L, V, D) :-
+    defined(V, L),
+    defined(V, D),
+    L != D.
+ 
+kill(L, V, "?") :-
+    defined(V, L).
+
+.decl gen(L:symbol, V:symbol, D:symbol)
+
+gen(L, V, L) :- defined(V, L).
+
+.decl rd_entry(L:symbol, V:symbol, D:symbol)
+.decl rd_exit(L:symbol, V:symbol, D:symbol) 
+
+rd_entry(L, V, "?") :- init(L), variable(V).
+rd_entry(L, V, D) :- flow(L2, L), rd_exit(L2, V, D).
+rd_exit(L, V, D) :- rd_entry(L, V, D), !kill(L, V, D).
+rd_exit(L, V, D) :- gen(L, V, D).
 
 .decl reach(L1:symbol, L2:symbol)
 
@@ -56,29 +88,20 @@ reach(L1, L2) :-
     flow(L1, L3),
     reach(L3, L2).
 
-.decl uninitialised_variables(V:symbol, L:symbol)
+.decl uv(V:symbol, L:symbol)
+.output uv
+
+uv(V, L) :-
+    used(V, L),
+    rd_entry(L, V, "?").
+
+/* identify transitive uv
+uv(V, L) :-
+    used(V, L),
+    rd_entry(L, V, D),
+    uv(_, D).
+*/
 .output defined_deref
+.output rhs_deref
 .output used_deref
-
-uninitialised_variables(V, L) :-
-    label(L), 
-    label(L1),
-    flow(L1, L),
-    !defined_deref(V, L1),
-    used(V, L).
-
-uninitialised_variables(V, L0) :-
-    init(L0),
-    used_deref(V, L0).
-
-
-uninitialised_variables(V, L) :-
-    label(L), 
-    label(L1),
-    flow(L1, L),
-    !defined(V, L1),
-    used(V, L).
-
-uninitialised_variables(V, L0) :-
-    init(L0),
-    used(V, L0).
+.output call_arg_deref

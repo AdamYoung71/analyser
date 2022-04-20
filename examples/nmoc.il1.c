@@ -4,6 +4,8 @@ int main() {
     open(1);
     open(2);
     open(3);
+    open(4);
+    close(5);
     open(x);
     open(y);
     open(z);

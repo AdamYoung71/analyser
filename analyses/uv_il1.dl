@@ -82,7 +82,9 @@ uv(V, L) :-
     used(V, L),
     rd_entry(L, V, "?").
 
+/* identify transitive uv
 uv(V, L) :-
     used(V, L),
     rd_entry(L, V, D),
     uv(_, D).
+*/
