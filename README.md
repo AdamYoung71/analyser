@@ -20,8 +20,8 @@ To run the analysis `rd_il1`, reaching definitions for IL1 defined in `analyses/
     
 The same analysis can be executed in three steps: (1) generating a Datalog EDB, (2) creating an output directory and executing Souffle, and (3) printing the result (using the volume `comp0174-vol` for persistent storage):
 
-    docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
-        python3 analyse.py --output-edb results/edb1 examples/rd.il1.c
+    * docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
+        * python3 analyse.py --output-edb results/edb1 examples/rd.il1.c
     
     docker run -ti --rm -v comp0174-vol:/comp0174/results comp0174-analyser \
         mkdir results/output1
