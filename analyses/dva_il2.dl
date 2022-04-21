@@ -1,1 +1,99 @@
 
+/*
+Dead variable assignments
+The goal of this analysis (called dva_il1 and dva_il2 for IL1 and IL2 respectively)
+is to detect assignments to variables that are not live. The output of this analysis
+should be a relation result(V, L) that states that the variable V is dead in the assignment L.
+*/
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis dva_il2 examples/dva.il2.c
+*/
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+
+.decl used(V:symbol, L:symbol)
+.input used
+
+.decl defined_deref(V: symbol, L: symbol)
+.input defined_deref
+
+.decl used_deref(V:symbol, L:symbol)
+.input used_deref
+
+.decl rhs_deref(V:symbol, L:symbol)
+.input rhs_deref
+
+.decl rhs_address(V:symbol, L:symbol)
+.input rhs_address
+
+.decl call_arg_deref(M:symbol, V:symbol, L:symbol)
+.input call_arg_deref
+
+.decl kill(L:symbol, V:symbol, D:symbol)
+
+kill(L, V, D) :-
+    defined(V, L),
+    defined(V, D),
+    L != D.
+kill(L, V, D) :-
+    defined_deref(V, L),
+    defined_deref(V, D),
+    L != D.
+ 
+kill(L, V, "?") :-
+    defined(V, L).
+
+kill(L, V, "?") :-
+    defined_deref(V, L).
+
+.decl live_vars_in(V:symbol, L:symbol)
+live_vars_in(V, L) :- used(V, L).
+live_vars_in(V, L) :- !defined(V, L), live_vars_out(V, L).
+
+live_vars_in(V, L) :- used_deref(V, L).
+live_vars_in(V, L) :- !defined_deref(V, L), live_vars_out(V, L).
+
+.decl live_vars_out(V:symbol, L:symbol)
+live_vars_out(V, L) :- flow(L, L1), live_vars_in(V, L1).
+
+/* At lable L, if variable V is dead(!live), and L is the definitio of V*/
+
+.decl dead_var_assign(V:symbol, L:symbol)
+
+
+dead_var_assign(V, L) :-
+    defined(V, L),
+    !live_vars_in(V, L).
+
+dead_var_assign(V, L) :-
+    defined_deref(V, L),
+    !live_vars_in(V, L).
+
+.decl result(V:symbol, L:symbol)
+.output result
+
+result(V, L) :- dead_var_assign(V, L).

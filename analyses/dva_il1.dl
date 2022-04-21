@@ -54,10 +54,13 @@ live_vars_out(V, L) :- flow(L, L1), live_vars_in(V, L1).
 /* At lable L, if variable V is dead(!live), and L is the definitio of V*/
 
 .decl dead_var_assign(V:symbol, L:symbol)
-.output dead_var_assign
 
 dead_var_assign(V, L) :-
     defined(V, L),
     !live_vars_in(V, L).
 
+.decl result(V:symbol, L:symbol)
+.output result
+
+result(V, L) :- dead_var_assign(V, L).
 

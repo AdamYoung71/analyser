@@ -1,3 +1,15 @@
+/*
+Uninitialised variables
+The goal of this analysis (called uv_il1 and uv_il2 for IL1 and IL2 respectively) 
+is to detect variables that are used but not defined. The output of this analysis 
+should be a relation result(V, L) that states that the variable V may be used 
+uninitialised in the statement L. 
+*/
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il2 examples/uv.il2.c
+*/
+
+
 .decl label(L:symbol)
 .input label
 
@@ -25,9 +37,26 @@
 .decl defined(V: symbol, L:symbol)
 .input defined
 
+.decl used(V:symbol, L:symbol)
+.input used
+
 .decl rhs_var(V:symbol, L:symbol)
 .input rhs_var
- 
+
+.decl defined_deref(V: symbol, L: symbol)
+.input defined_deref
+
+.decl used_deref(V:symbol, L:symbol)
+.input used_deref
+
+.decl rhs_deref(V:symbol, L:symbol)
+.input rhs_deref
+
+.decl rhs_address(V:symbol, L:symbol)
+.input rhs_address
+
+.decl call_arg_deref(M:symbol, V:symbol, L:symbol)
+.input call_arg_deref
 
 .decl kill(L:symbol, V:symbol, D:symbol)
 
@@ -50,7 +79,7 @@ rd_entry(L, V, "?") :- init(L), variable(V).
 rd_entry(L, V, D) :- flow(L2, L), rd_exit(L2, V, D).
 rd_exit(L, V, D) :- rd_entry(L, V, D), !kill(L, V, D).
 rd_exit(L, V, D) :- gen(L, V, D).
- 
+
 .decl reach(L1:symbol, L2:symbol)
 
 reach(L, L) :- label(L).
@@ -59,22 +88,40 @@ reach(L1, L2) :-
     flow(L1, L3),
     reach(L3, L2).
 
-.decl uvBefore(V:symbol, L:symbol)
-.decl uvAfter(V:symbol, L:symbol)
+.decl uv(V:symbol, L:symbol)
+.output uv
 
-.output uvBefore
-.output uvAfter
+uv(V, L) :-
+    used(V, L),
+    rd_entry(L, V, "?").
 
-uvBefore(V, L) :-
-    label(L1),
-    reach(L1, L),
-    uvAfter(V, L1).
-
-uvAfter(V, L) :-
-    !defined(V, L),
-    uvBefore(V, L).
-
-uvAfter(V, L) :-
-    rhs_var(V, L),
-    defined(V1, L),
-    uvBefore(V1, L).
+/* identify transitive uv
+uv(V, L) :-
+    used(V, L),
+    rd_entry(L, V, D),
+    uv(_, D).
+*/
+.output defined_deref
+.output rhs_deref
+.output used_deref
+.output call_arg_deref
+.output rhs_address
+/* output:
+rhs_deref(y, l3)
+uv(y, l3)
+uv(z, l4)
+used_deref(y, l3)
+used_deref(z, l4)
+call_arg_deref(call, z, l4)
+defined_deref(y, l2)
+defined_deref(z, l3)
+rhs_address(x, l2)
+*/
+/*
+int main() {
+    x = 1;
+    *y = &x;
+    *z = *y;
+    call(*z);
+}
+*/

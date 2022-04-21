@@ -76,7 +76,6 @@ reach(L1, L2) :-
     reach(L3, L2).
 
 .decl uv(V:symbol, L:symbol)
-.output uv
 
 uv(V, L) :-
     used(V, L),
@@ -88,3 +87,7 @@ uv(V, L) :-
     rd_entry(L, V, D),
     uv(_, D).
 */
+.decl result(V:symbol, L:symbol)
+.output result
+
+result(V, L) :- uv(V, L).

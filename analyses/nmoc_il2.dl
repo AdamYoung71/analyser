@@ -1,0 +1,135 @@
+/*
+Non-matching open/close
+A call to the function open(x) with one argument does not
+have a matching call of the function close(...) with one 
+argument if along at least one path to the final statement 
+close(...) is not called with the same value as the argument. 
+The goal of this analysis (called nmoc_il1 and nmoc_il2 for IL1 and IL2 respectively) 
+is to detect calls of calls that do not have matching calls of close(...). 
+The output of this analysis should be a relation result(L) that states 
+the statement L has a call of open(...) without a matching call of close(...).
+*/
+
+/*
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis nmoc_il2 examples/nmoc.il2.c
+*/
+
+.decl label(L:symbol)
+.input label
+
+.decl flow(L1:symbol, L2:symbol)
+.input flow
+
+.decl init(L:symbol)
+.input init
+
+.decl final(L:symbol)
+.input final
+
+.decl variable(L:symbol)
+.input variable
+
+.decl assignment(L:symbol)
+.input assignment
+
+.decl condition(L:symbol)
+.input condition
+
+.decl return(L:symbol)
+.input return
+
+.decl defined(V: symbol, L:symbol)
+.input defined
+
+.decl used(V:symbol, L:symbol)
+.input used
+
+.decl rhs_var(V:symbol, L:symbol)
+.input rhs_var
+
+.decl function(M:symbol)
+.input function
+
+.decl reach(L1:symbol, L2:symbol)
+
+reach(L, L) :- label(L).
+
+reach(L1, L2) :-
+    flow(L1, L3),
+    reach(L3, L2).
+
+.decl call(M:symbol, L:symbol)
+.input call
+
+.decl call_arg_var(M:symbol, V:symbol, L:symbol)
+.input call_arg_var
+
+.decl call_arg_const(M:symbol, C:symbol, L:symbol)
+.input call_arg_const
+
+.decl defined_deref(V: symbol, L: symbol)
+.input defined_deref
+
+.decl used_deref(V:symbol, L:symbol)
+.input used_deref
+
+.decl rhs_deref(V:symbol, L:symbol)
+.input rhs_deref
+
+.decl rhs_address(V:symbol, L:symbol)
+.input rhs_address
+
+.decl call_arg_deref(M:symbol, V:symbol, L:symbol)
+.input call_arg_deref
+
+.decl matched_call_var(L:symbol, L1:symbol)
+matched_call_var(L, L1) :-
+    function(M1),
+    M1 = "open",
+    function(M2),
+    M2 = "close",
+    call_arg_var(M1, V, L),
+    label(L1),
+    reach(L, L1),
+    call_arg_var(M2, V, L1).
+
+matched_call_var(L, L1) :-
+    function(M1),
+    M1 = "open",
+    function(M2),
+    M2 = "close",
+    call_arg_deref(M1, V, L),
+    label(L1),
+    reach(L, L1),
+    call_arg_deref(M2, V, L1).
+
+.decl matched_call_const(L:symbol, L1:symbol) //add l1 in the def
+matched_call_const(L, L1) :-
+    function(M1),
+    M1 = "open",
+    function(M2),
+    M2 = "close",
+    call_arg_const(M1, V, L),
+    label(L1),
+    reach(L, L1),
+    call_arg_const(M2, V, L1).
+
+.decl nmoc(L:symbol)
+nmoc(L) :-
+    call_arg_const(M, V, L),
+    !matched_call_const(_, L),
+    !matched_call_const(L, _).
+
+nmoc(L) :-
+    call_arg_var(M, V, L),
+    !matched_call_var(_, L),
+    !matched_call_var(L, _).
+nmoc(L) :-
+    call_arg_deref(M, V, L),
+    !matched_call_var(_, L),
+    !matched_call_var(L, _).
+
+.decl result(L:symbol)
+.output result
+
+result(L) :- nmoc(L).

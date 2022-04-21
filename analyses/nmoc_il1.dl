@@ -101,4 +101,7 @@ nmoc(L) :-
     !matched_call_var(_, L),
     !matched_call_var(L, _).
 
-.output nmoc
+.decl result(L:symbol)
+.output result
+
+result(L) :- nmoc(L).

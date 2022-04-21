@@ -80,5 +80,7 @@ dead_code(L) :-
 back_reach(L2, L1) :- reach(L1, L2).
     
 
-.output dead_code
-.output back_reach
+.decl result(L:symbol)
+.output result
+
+result(L) :- dead_code(L).

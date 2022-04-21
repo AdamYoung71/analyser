@@ -6,7 +6,7 @@ should be a relation result(V, L) that states that the variable V may be used
 uninitialised in the statement L. 
 */
 /*
-docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examples/uv.il1.c
+docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il2 examples/uv.il2.c
 */
 
 
@@ -55,7 +55,7 @@ docker run -ti --rm comp0174-analyser python3 analyse.py --analysis uv_il1 examp
 .decl rhs_address(V:symbol, L:symbol)
 .input rhs_address
 
-.decl call_arg_deref(M, V, L)
+.decl call_arg_deref(M:symbol, V:symbol, L:symbol)
 .input call_arg_deref
 
 .decl kill(L:symbol, V:symbol, D:symbol)
@@ -64,13 +64,21 @@ kill(L, V, D) :-
     defined(V, L),
     defined(V, D),
     L != D.
- 
+
+kill(L, V, D) :-
+    defined_deref(V, L),
+    defined_deref(V, D),
+    L != D.
+
 kill(L, V, "?") :-
     defined(V, L).
+kill(L, V, "?") :-
+    defined_deref(V, L).
 
 .decl gen(L:symbol, V:symbol, D:symbol)
 
 gen(L, V, L) :- defined(V, L).
+gen(L, V, L) :- defined_deref(V, L).
 
 .decl rd_entry(L:symbol, V:symbol, D:symbol)
 .decl rd_exit(L:symbol, V:symbol, D:symbol) 
@@ -89,7 +97,6 @@ reach(L1, L2) :-
     reach(L3, L2).
 
 .decl uv(V:symbol, L:symbol)
-.output uv
 
 uv(V, L) :-
     used(V, L),
@@ -101,7 +108,11 @@ uv(V, L) :-
     rd_entry(L, V, D),
     uv(_, D).
 */
-.output defined_deref
-.output rhs_deref
-.output used_deref
-.output call_arg_deref
+uv(V, L) :-
+    used_deref(V, L),
+    rd_entry(L, V, "?").
+
+.decl result(V:symbol, L:symbol)
+.output result
+
+result(V, L) :- uv(V, L).
